@@ -125,4 +125,66 @@ export default class FizzBuzz {
 - useStateはGenerics型指定しないとany型を受け入れる
 - Generics指定したuseStateはIDEではエラー吐くけど、ブラウザでは動いてしまう
 - コンポーネントは1つのタグ（まとまり）しか返せないが、<></>という空タグで囲ってしまえば実際のHTMLには出てこない
-- 
+
+## InputElementの双方向バインディング(v-model)
+
+Input.tsx
+```tsx
+import { ChangeEvent, useState } from 'react'
+
+const Input = (props: { text?: string, model: (value: string) => void }): JSX.Element => {
+
+    const [text, setText] = useState<string>(props.text ?? '');
+
+    const onChange = (event: ChangeEvent<HTMLInputElement>): void => {
+        setText(event.target.value)
+        props.model(event.target.value)
+    }
+    return (
+        <input type="text" value={text} onChange={onChange} />
+    )
+}
+
+export default Input
+```
+
+App.tsx
+```tsx
+import { useMemo, useState } from 'react'
+import './App.css'
+import Input from "@/components/Input"
+
+function App() {
+
+    const [text, setText] = useState<string>('')
+
+    return (
+        <div className="App">
+            <p>{text}</p>
+            <Input model={setText}/>
+        </div>
+    )
+}
+
+export default App
+```
+
+ReactのEventが独自型だということはわかった。ただTypeScriptでGenericsで型が扱いやすくなってるところに魅力を感じられる。
+
+## computed（リアクティブな演算値）
+
+### 多分DOMの変更全てに対して検知して再演算するタイプのリアクティブ
+```ts
+const reversed = text.split('').reverse().join('')
+```
+仕組みがVueよりも全くわからないわからないのでキモい。噂のJavaScriptらしいReactじゃない。キモい
+
+
+### 特定の変数だけ監視して、特定の変数が変わったときのみ再演算するだろうタイプのリアクティブ
+```ts
+const reversed = useMemo(() => {
+    return text.split('').reverse().join('');
+}, [text])
+```
+こっちの方がVueと同じだし、なんならVueよりも仕組みがはっきりわかっていて良き
+ただ使い方覚えるのが面倒くさいs

@@ -1,13 +1,25 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import './App.css'
 import HelloWorld from '@/components/HelloWorld'
+import Input from "@/components/Input"
 
 function App() {
-  return (
-    <div className="App">
-        <HelloWorld/>
-    </div>
-  )
+
+    const [text, setText] = useState('')
+
+    const reversed = useMemo(() => {
+        return text.split('').reverse().join('');
+    }, [text])
+
+    // const reversed = text.split('').reverse().join('')
+
+    return (
+        <div className="App">
+            <HelloWorld/>
+            <p>{reversed}</p>
+            <Input model={setText}/>
+        </div>
+    )
 }
 
 export default App
